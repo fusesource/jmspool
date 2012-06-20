@@ -40,7 +40,46 @@ To be able to start the recovery process, the [GenericResourceManager](https://g
 
 # Examples
 
-## Simple pool
+## Simple pool using blueprint
+
+       <bean id="internalConnectionFactory" class="org.apache.activemq.ActiveMQXAConnectionFactory">
+           <argument value="tcp://localhost:61616" />
+       </bean>
+	
+       <bean id="connectionFactory" class="org.fusesource.jms.pool.JcaPooledConnectionFactory" 
+               init-method="start" destroy-method="stop">
+           <property name="connectionFactory" ref="internalConnectionFactory"/>
+           <property name="name" value="activemq" />
+       </bean>
+
 
 ## JCA pool
+
+       <reference id="transactionManager" interface="org.apache.geronimo.transaction.manager.RecoverableTransactionManager" 
+               availability="mandatory" />
+
+       <bean id="platformTransactionManager" class="org.springframework.transaction.jta.JtaTransactionManager" 
+               init-method="afterPropertiesSet">
+           <property name="transactionManager" ref="transactionManager"/>
+           <property name="autodetectUserTransaction" value="false"/>
+       </bean>
+
+       <bean id="internalConnectionFactory" class="org.apache.activemq.ActiveMQXAConnectionFactory">
+           <argument value="tcp://localhost:61616" />
+       </bean>
+	
+       <bean id="connectionFactory" class="org.fusesource.jms.pool.JcaPooledConnectionFactory"
+               init-method="start" destroy-method="stop">
+           <property name="connectionFactory" ref="internalConnectionFactory"/>
+           <property name="transactionManager" ref="transactionManager"/>
+           <property name="name" value="activemq" />
+       </bean>
+	
+       <bean id="resourceManager" class="org.fusesource.jms.pool.GenericResourceManager" init-method="recoverResource">
+           <property name="connectionFactory" ref="internalConnectionFactory"/>
+           <property name="transactionManager" ref="transactionManager"/>
+           <property name="resourceName" value="activemq" />
+       </bean>
+    
+
 
