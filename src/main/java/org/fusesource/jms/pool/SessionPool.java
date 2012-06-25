@@ -19,6 +19,8 @@ package org.fusesource.jms.pool;
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import javax.jms.XAConnection;
+import javax.jms.XASession;
 
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.PoolableObjectFactory;
@@ -81,7 +83,11 @@ public class SessionPool implements PoolableObjectFactory {
     // PoolableObjectFactory methods
     // -------------------------------------------------------------------------
     public Object makeObject() throws Exception {
-        return new PooledSession(createSession(), this, key.isTransacted());
+    	if (getConnection() instanceof XAConnection) {
+    		return new PooledSession(createXaSession(), this, key.isTransacted());
+    	} else {
+    		return new PooledSession(createSession(), this, key.isTransacted());
+    	}
     }
 
     public void destroyObject(Object o) throws Exception {
@@ -114,6 +120,10 @@ public class SessionPool implements PoolableObjectFactory {
 
     protected Session createSession() throws JMSException {
         return getConnection().createSession(key.isTransacted(), key.getAckMode());
+    }
+    
+    protected XASession createXaSession() throws JMSException {
+        return ((XAConnection)getConnection()).createXASession();
     }
 
 }

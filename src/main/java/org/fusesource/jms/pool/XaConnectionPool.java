@@ -43,20 +43,20 @@ public class XaConnectionPool extends ConnectionPool {
     }
 
     public Session createSession(boolean transacted, int ackMode) throws JMSException {
+    	PooledSession session = null;
         try {
             boolean isXa = (transactionManager != null && transactionManager.getStatus() != Status.STATUS_NO_TRANSACTION);
             if (isXa) {
                 transacted = true;
                 ackMode = Session.SESSION_TRANSACTED;
-            }
-            PooledSession session = (PooledSession) super.createSession(transacted, ackMode);
-            if (isXa) {
+                session = (PooledSession) super.createXaSession(transacted, ackMode);
                 session.setIgnoreClose(true);
                 session.setIsXa(true);
                 transactionManager.getTransaction().registerSynchronization(new Synchronization(session));
                 incrementReferenceCount();
                 transactionManager.getTransaction().enlistResource(createXaResource(session));
             } else {
+            	session = (PooledSession) super.createSession(transacted, ackMode);
                 session.setIgnoreClose(false);
             }
             return session;

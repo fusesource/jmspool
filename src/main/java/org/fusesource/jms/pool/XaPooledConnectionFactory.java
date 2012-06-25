@@ -41,19 +41,15 @@ public class XaPooledConnectionFactory extends PooledConnectionFactory {
     }
 
     public void setXaConnectionFactory(XAConnectionFactory xaConnectionFactory) {
-        this.xaConnectionFactory = xaConnectionFactory;
-        if (xaConnectionFactory instanceof ConnectionFactory) {
-            setConnectionFactory((ConnectionFactory) xaConnectionFactory);
-        } else {
-            setConnectionFactory(new ConnectionFactory() {
-                public Connection createConnection() throws JMSException {
-                    return XaPooledConnectionFactory.this.xaConnectionFactory.createXAConnection();
-                }
-                public Connection createConnection(String userName, String password) throws JMSException {
-                    return XaPooledConnectionFactory.this.xaConnectionFactory.createXAConnection(userName, password);
-                }
-            });
-        }
+    	this.xaConnectionFactory = xaConnectionFactory;
+        setConnectionFactory(new ConnectionFactory() {
+            public Connection createConnection() throws JMSException {
+                return XaPooledConnectionFactory.this.xaConnectionFactory.createXAConnection();
+            }
+            public Connection createConnection(String userName, String password) throws JMSException {
+                return XaPooledConnectionFactory.this.xaConnectionFactory.createXAConnection(userName, password);
+            }
+        });
     }
 
     public TransactionManager getTransactionManager() {
@@ -67,5 +63,4 @@ public class XaPooledConnectionFactory extends PooledConnectionFactory {
     protected ConnectionPool createConnectionPool(Connection connection) throws JMSException {
         return new XaConnectionPool((XAConnection) connection, getPoolFactory(), getTransactionManager());
     }
-
 }

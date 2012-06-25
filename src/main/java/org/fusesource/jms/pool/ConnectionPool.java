@@ -25,6 +25,7 @@ import javax.jms.Connection;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import javax.jms.XASession;
 
 import org.apache.commons.pool.ObjectPoolFactory;
 
@@ -129,6 +130,31 @@ public class ConnectionPool {
         this.loanedSessions.add(session);
         return session;
     }
+    
+    
+    public Session createXaSession(boolean transacted, int ackMode) throws JMSException {
+        SessionKey key = new SessionKey(transacted, ackMode);
+        SessionPool pool = null;
+        pool = cache.get(key);
+        if (pool == null) {
+            SessionPool newPool = createSessionPool(key);
+            SessionPool prevPool = cache.putIfAbsent(key, newPool);
+            if (prevPool != null && prevPool != newPool) {
+                // newPool was not the first one to be associated with this
+                // key... close created session pool
+                try {
+                    newPool.close();
+                } catch (Exception e) {
+                    throw new JMSException(e.getMessage());
+                }
+            }
+            pool = cache.get(key); // this will return a non-null value...
+        }
+        PooledSession session = pool.borrowSession();
+        this.loanedSessions.add(session);
+        return session;
+    }
+    
 
     public synchronized void close() {
         if (connection != null) {

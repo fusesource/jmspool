@@ -40,5 +40,4 @@ public class JcaConnectionPool extends XaConnectionPool {
         }
         return xares;
     }
-
 }

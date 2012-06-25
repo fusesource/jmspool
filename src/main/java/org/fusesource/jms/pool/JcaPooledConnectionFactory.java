@@ -16,6 +16,7 @@
 package org.fusesource.jms.pool;
 
 import javax.jms.JMSException;
+import javax.jms.Connection;
 import javax.jms.XAConnection;
 
 /**
@@ -37,8 +38,11 @@ public class JcaPooledConnectionFactory extends XaPooledConnectionFactory {
         this.name = name;
     }
 
-    protected ConnectionPool createConnectionPool(XAConnection connection) throws JMSException {
-        return new JcaConnectionPool(connection, getPoolFactory(), getTransactionManager(), getName());
+    protected ConnectionPool createConnectionPool(Connection connection) throws JMSException {
+    	if (!(connection instanceof XAConnection)) {
+    		throw new JMSException("Require an instance of javax.jms.XAConnection for creating the ConnectionPool");
+    	}
+        return new JcaConnectionPool((XAConnection)connection, getPoolFactory(), getTransactionManager(), getName());
     }
 
 }
