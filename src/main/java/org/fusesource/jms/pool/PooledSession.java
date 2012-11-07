@@ -50,7 +50,9 @@ public class PooledSession implements Session, TopicSession, QueueSession {
     }
 
     public void addTempDestEventListener(PooledSessionEventListener listener) {
-        this.tempDestEventListeners.add(listener);
+    	if (!tempDestEventListeners.contains(listener)) {
+			this.tempDestEventListeners.add(listener);
+    	}
     }
 
     protected boolean isIgnoreClose() {
@@ -95,6 +97,7 @@ public class PooledSession implements Session, TopicSession, QueueSession {
             } finally {
                 consumers.clear();
                 browsers.clear();
+                tempDestEventListeners.clear();
             }
 
             if (invalidate) {
