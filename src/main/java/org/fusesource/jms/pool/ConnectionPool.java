@@ -18,14 +18,14 @@
 package org.fusesource.jms.pool;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.jms.Connection;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Session;
-import javax.jms.XASession;
 
 import org.apache.commons.pool.ObjectPoolFactory;
 
@@ -38,7 +38,7 @@ public class ConnectionPool {
 
     private Connection connection;
     private ConcurrentHashMap<SessionKey, SessionPool> cache;
-    private ConcurrentLinkedQueue<PooledSession> loanedSessions = new ConcurrentLinkedQueue<PooledSession>();
+    private List<PooledSession> loanedSessions = new CopyOnWriteArrayList<PooledSession>();
     private AtomicBoolean started = new AtomicBoolean(false);
     private int referenceCount;
     private ObjectPoolFactory poolFactory;
