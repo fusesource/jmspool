@@ -1,6 +1,8 @@
 Generic XA-aware JMS Connection Pool
 ====================================
 
+_This project has been merged into the [Apache ActiveMQ](http://activemq.apache.org) (activemq-jms-pool artifact). The first version of ActiveMQ with JMS pool included is 5.9.0._
+
 This library provides a generic JMS connection pool with 3 different falvors:
   * a simple [PooledConnectionFactory](https://github.com/fusesource/jmspool/blob/master/src/main/java/org/fusesource/jms/pool/PooledConnectionFactory.java)
   * an XA-aware [XAPooledConnectionFactory](https://github.com/fusesource/jmspool/blob/master/src/main/java/org/fusesource/jms/pool/XaPooledConnectionFactory.java)
